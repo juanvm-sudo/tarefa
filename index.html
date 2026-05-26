@@ -1,20 +1,81 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Mind - Recomendador</title>
-    <link rel="stylesheet" href="stys.css">
+    <title>Café Aroma - O Seu Momento</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="chat-container">
-        <div id="chat-header">🎮 games para jogar 🎮</div>
-        <div id="mensagens"></div>
-        <div id="input-area">
-            <input type="text" id="usuario-input" placeholder="Digite um gênero (ex: RPG, FPS, ) ou (oi) para comesar">
-            <button onclick="enviarMensagem()">Enviar</button>
+
+    <!-- Cabeçalho / Navegação -->
+    <header>
+        <div class="logo">☕ Café Aroma</div>
+        <nav>
+            <a href="#home">Início</a>
+            <a href="#menu">Cardápio</a>
+            <a href="#contato">Contato</a>
+        </nav>
+    </header>
+
+    <!-- Seção Principal (Home) -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>O café perfeito para o seu dia</h1>
+            <p>Grãos selecionados, ambiente aconchegante e torra artesanal.</p>
+            <a href="#menu" class="btn">Ver Cardápio</a>
         </div>
-    </div>
+    </section>
+
+    <!-- Seção do Cardápio -->
+    <section id="menu" class="menu-section">
+        <h2>Nosso Cardápio</h2>
+        <div class="menu-filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="quentes">Quentes</button>
+            <button class="filter-btn" data-filter="gelados">Gelados</button>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item" data-category="quentes">
+                <h3>Espresso Tradicional</h3>
+                <p>Café concentrado com aroma intenso.</p>
+                <span class="price">R$ 7,00</span>
+            </div>
+            <div class="menu-item" data-category="quentes">
+                <h3>Capuccino Italiano</h3>
+                <p>Espresso com leite vaporizado e canela.</p>
+                <span class="price">R$ 11,00</span>
+            </div>
+            <div class="menu-item" data-category="gelados">
+                <h3>Iced Latte</h3>
+                <p>Café expresso gelado batido com leite integral.</p>
+                <span class="price">R$ 13,00</span>
+            </div>
+            <div class="menu-item" data-category="gelados">
+                <h3>Frappé de Caramelo</h3>
+                <p>Bebida cremosa com chantilly e calda.</p>
+                <span class="price">R$ 16,00</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Contato -->
+    <section id="contato" class="contact-section">
+        <h2>Fale Conosco</h2>
+        <form id="contactForm" class="contact-form">
+            <input type="text" id="name" placeholder="Seu Nome" required>
+            <input type="email" id="email" placeholder="Seu E-mail" required>
+            <textarea id="message" placeholder="Sua Mensagem" rows="5" required></textarea>
+            <button type="submit" class="btn">Enviar Mensagem</button>
+        </form>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2026 Café Aroma. Todos os direitos reservados.</p>
+    </footer>
+
     <script src="script.js"></script>
 </body>
 </html>

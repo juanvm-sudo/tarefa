@@ -1,75 +1,41 @@
-// Banco de dados centralizado
-const BAMCO_DE_RESPOSTAS_VARIAVEIS = {
-    "oi": "Oii tudo bem, Tente enviar **rpg**, **fps**, **esporte**, **grátis**, **ação**,  **tiro**, **aventura**, **mundo aberto** ou **Terror**.",
-    "oi tudo bem,": "tudo!!! Aqui vai umas opções de perguntas, **rpg**, **fps**, **esporte**, **grátis**, **ação**,  **tiro**, **aventura**, **mundo aberto** ou **Terror**."
-
-
-
-
-
-};
-const BANCO_DE_JOGOS = {
-    "ação": "God of War Ragnarök e Elden Ring",
-    "aventura": "The Last of Us Part II e Zelda: Tears of the Kingdom",
-    "tiro": "Call of Duty: Warzone, Valorant e Counter-Strike 2",
-    "fps": "Call of Duty: Warzone, Valorant e Counter-Strike 2",
-    "rpg": "Baldur's Gate 3, The Witcher 3 e Final Fantasy VII Rebirth",
-    "mundo aberto": "GTA V, Red Dead Redemption 2 e Cyberpunk 2077",
-    "esporte": "EA Sports FC 24 e NBA 2K24",
-    "terror": "Resident Evil Village e Silent Hill 2 Remake",
-    "grátis": "Fortnite, League of Legends e Genshin Impact"
-
-
-
-};
-
-function adicionarMensagem(texto, tipo) {
-    const box = document.getElementById('mensagens');
-    const div = document.createElement('div');
-    div.className = `msg ${tipo}`;
-    div.innerHTML = texto;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-}
-
-function enviarMensagem() {
-    const input = document.getElementById('usuario-input');
-    const texto = input.value.trim();
+document.addEventListener("DOMContentLoaded", () => {
     
-    if (texto !== "") {
-        adicionarMensagem(texto, 'user-msg');
-        input.value = "";
-        setTimeout(() => responder(texto), 1000);
-    }
-}
+    // --- LÓGICA DO FILTRO DO CARDÁPIO ---
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const menuItems = document.querySelectorAll(".menu-item");
 
-function responder(texto) {
-    const msg = texto.toLowerCase();
-    let resposta = "Hmm, não encontrei jogos exatamente com esse termo. Tente categorias como **RPG**, **FPS**, **esporte**, **grátis**, **ação**,  **tiro**, **aventura**, **mundo aberto** ou **Terror**.";
+    filterButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            // Remove classe ativa de todos e adiciona no clicado
+            filterButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
 
-    // Busca inteligente no Banco de Dados
-    for (let categoria in BANCO_DE_JOGOS) {
-        if (msg.includes(categoria)) {
-            resposta = `Para **${categoria.toUpperCase()}**, recomendo: ${BANCO_DE_JOGOS[categoria]}.`;
-            break; 
-        }
-    }
+            const filterValue = button.getAttribute("data-filter");
 
-    adicionarMensagem(resposta, 'bot-msg');
+            menuItems.forEach(item => {
+                const category = item.getAttribute("data-category");
+                
+                if (filterValue === "todos" || filterValue === category) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        });
+    });
 
+    // --- VALIDAÇÃO DO FORMULÁRIO ---
+    const form = document.getElementById("contactForm");
 
-    for (let categoria in BANCO_DE_RESPOSTAS_VARIAVEIS) {
-        if (msg.includes(categoria)) {
-            resposta = `**${categoria.toUpperCase()}**, ${BANCO_DE_RESPOSTAS_VARIAVEIS[categoria]}.`;
-            break; 
-        }
-    }
+    form.addEventListener("submit", (event) => {
+        event.preventDefault(); // Evita que a página recarregue
 
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
 
-  
-}
-
-
-document.getElementById('usuario-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') enviarMensagem();
+        // Exibe uma mensagem de sucesso simples
+        alert(`Obrigado pelo contato, ${name}! Responderemos em breve no e-mail: ${email}`);
+        
+        form.reset(); // Limpa os campos do formulário
+    });
 });
