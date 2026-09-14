@@ -1,41 +1,68 @@
-document.addEventListener("DOMContentLoaded", () => {
-    
-    // --- LÓGICA DO FILTRO DO CARDÁPIO ---
-    const filterButtons = document.querySelectorAll(".filter-btn");
-    const menuItems = document.querySelectorAll(".menu-item");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-    filterButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            // Remove classe ativa de todos e adiciona no clicado
-            filterButtons.forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
+const scoreElement = document.getElementById("score");
+const timerElement = document.getElementById("timer");
+const shotsElement = document.getElementById("shots");
+const gameOverElement = document.getElementById("gameOver");
+const finalScoreElement = document.getElementById("finalScore");
+const restartButton = document.getElementById("restartButton");
 
-            const filterValue = button.getAttribute("data-filter");
+const WIDTH = 1000;
+const HEIGHT = 600;
 
-            menuItems.forEach(item => {
-                const category = item.getAttribute("data-category");
-                
-                if (filterValue === "todos" || filterValue === category) {
-                    item.style.display = "block";
-                } else {
-                    item.style.display = "none";
-                }
-            });
-        });
-    });
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
 
-    // --- VALIDAÇÃO DO FORMULÁRIO ---
-    const form = document.getElementById("contactForm");
+// ===============================
+// ESTADO DO JOGO
+// ===============================
 
-    form.addEventListener("submit", (event) => {
-        event.preventDefault(); // Evita que a página recarregue
+let score = 0;
+let shots = 0;
+let timeLeft = 60;
+let gameRunning = true;
 
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
+let keys = {};
 
-        // Exibe uma mensagem de sucesso simples
-        alert(`Obrigado pelo contato, ${name}! Responderemos em breve no e-mail: ${email}`);
-        
-        form.reset(); // Limpa os campos do formulário
-    });
-});
+const player = {
+    x: 180,
+    y: 480,
+    width: 45,
+    height: 90,
+    speed: 5,
+    color: "#246BCE"
+};
+
+const ball = {
+    x: player.x + 25,
+    y: player.y - 25,
+    radius: 11,
+
+    vx: 0,
+    vy: 0,
+
+    gravity: 0.32,
+    active: false,
+
+    scored: false
+};
+
+const hoop = {
+    x: 805,
+    y: 205,
+    width: 95,
+    height: 10,
+
+    rimRadius: 5,
+
+    boardX: 900,
+    boardY: 125,
+    boardWidth: 15,
+    boardHeight: 150
+};
+
+let power = 11;
+let aimAngle = -0.75;
+
+let particles
