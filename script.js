@@ -126,7 +126,8 @@ const hoop = {
     y: 205,
     width: 95,
     height: 10,
-    rimRadius: 5,
+    rimRadius: 5,st WIDTH = 1000;
+co
     boardX: 900,
     boardY: 125,
     boardWidth: 15,
@@ -170,7 +171,8 @@ function spawnParticles(x, y, color, count = 24) {
 
 function updateParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
+        const p = past WIDTH = 1000;
+corticles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.vy += 0.12;
@@ -178,13 +180,15 @@ function updateParticles() {
         if (p.life <= 0) particles.splice(i, 1);
     }
 }
-
+st WIDTH = 1000;
+co
 function drawParticles() {
     particles.forEach((p) => {
         ctx.globalAlpha = Math.max(p.life / p.maxLife, 0);
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.arc(p.x, st WIDTH = 1000;
+cop.y, 3, 0, Math.PI * 2);
         ctx.fill();
     });
     ctx.globalAlpha = 1;
@@ -265,7 +269,7 @@ function updateBall() {
     ) {
         ball.x = hoop.boardX - ball.radius;
         ball.vx *= -0.5;
-    }  
+    }
 
     const rimLeft = hoop.x + 12;
     const rimRight = hoop.x + hoop.width - 12;
@@ -282,8 +286,8 @@ function updateBall() {
         scoreElement.textContent = score;
         spawnParticles(ball.x, ball.y, "#ff9f1c");
         triggerCrowdCheer();
-        
-        
+
+
         // Faz a torcida vibrar na cesta
     }
 
