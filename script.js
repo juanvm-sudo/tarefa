@@ -14,7 +14,7 @@ const HEIGHT = 600;
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
-const GROUND_Y = HEIGHT - 60;
+const GROUND_Y = HEIGHT - 100;
 
 let score = 0;
 let shots = 0;
@@ -23,6 +23,79 @@ let gameRunning = true;
 let timerInterval = null;
 
 let keys = {};
+
+// Configuração da Torcida (Bot / NPCs)
+const crowd = [];
+const CROWD_COUNT = 30;
+const crowdColors = ["#e63946", "#f1faee", "#a8dadc", "#457b9d", "#ffb703", "#fb8500", "#9d4edd"];
+
+for (let i = 0; i < CROWD_COUNT; i++) {
+    crowd.push({
+        x: 30 + i * 31,
+        y: GROUND_Y - 140 - (i % 2) * 15, // Alterna altura das fileiras
+        offsetY: 0,
+        jumpSpeed: 0,
+        color: crowdColors[i % crowdColors.length],
+        headColor: "#ffd8a8"
+    });
+}
+
+function triggerCrowdCheer() {
+    crowd.forEach((fan) => {
+        fan.jumpSpeed = -Math.random() * 6 - 4;
+    });
+}
+
+function updateCrowd() {
+    crowd.forEach((fan) => {
+        fan.offsetY += fan.jumpSpeed;
+        if (fan.offsetY < 0) {
+            fan.jumpSpeed += 0.3; // Gravidade do pulo da torcida
+        } else {
+            fan.offsetY = 0;
+            fan.jumpSpeed = 0;
+            // Movimento leve contínuo enquanto torcem
+            if (Math.random() < 0.02) {
+                fan.jumpSpeed = -Math.random() * 3 - 1;
+            }
+        }
+    });
+}
+
+function drawCrowd() {
+    // Arquibancada
+    ctx.fillStyle = "#8d99ae";
+    ctx.fillRect(10, GROUND_Y - 180, WIDTH - 20, 80);
+    ctx.fillStyle = "#6c757d";
+    ctx.fillRect(10, GROUND_Y - 140, WIDTH - 20, 40);
+
+    // Torcedores
+    crowd.forEach((fan) => {
+        const fy = fan.y + fan.offsetY;
+
+        // Corpo
+        ctx.fillStyle = fan.color;
+        ctx.fillRect(fan.x - 8, fy - 20, 16, 20);
+
+        // Cabeça
+        ctx.fillStyle = fan.headColor;
+        ctx.beginPath();
+        ctx.arc(fan.x, fy - 28, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Braços erguidos se estiverem pulando
+        if (fan.offsetY < -1) {
+            ctx.strokeStyle = fan.headColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(fan.x - 8, fy - 15);
+            ctx.lineTo(fan.x - 14, fy - 35);
+            ctx.moveTo(fan.x + 8, fy - 15);
+            ctx.lineTo(fan.x + 14, fy - 35);
+            ctx.stroke();
+        }
+    });
+}
 
 const player = {
     x: 180,
@@ -35,13 +108,14 @@ const player = {
     maxX: 650
 };
 
+// Ajuste na física para arremessos em arco mais acentuados
 const ball = {
     radius: 11,
     x: 0,
     y: 0,
     vx: 0,
     vy: 0,
-    gravity: 0.32,
+    gravity: 0.42, // Aumentada ligeiramente para curva suave de caindo
     active: false,
     scored: false,
     trail: []
@@ -59,10 +133,11 @@ const hoop = {
     boardHeight: 150
 };
 
-const MIN_POWER = 6;
-const MAX_POWER = 20;
-let power = 11;
-let aimAngle = -0.75;
+const MIN_POWER = 10;
+const MAX_POWER = 26;
+let power = 18;
+// Ângulo ajustado para lançar bem para cima (arco elevado)
+let aimAngle = -1.1;
 
 let particles = [];
 
@@ -78,7 +153,6 @@ function resetBallToPlayer() {
 
 resetBallToPlayer();
 
-// ---------- Partículas (efeito ao acertar a cesta) ----------
 function spawnParticles(x, y, color, count = 24) {
     for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -116,7 +190,6 @@ function drawParticles() {
     ctx.globalAlpha = 1;
 }
 
-// ---------- Input ----------
 window.addEventListener("keydown", (e) => {
     keys[e.code] = true;
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
@@ -145,7 +218,6 @@ function shootBall() {
     ball.vy = power * Math.sin(aimAngle);
 }
 
-// ---------- Update ----------
 function updatePlayer() {
     if (keys["ArrowLeft"]) player.x -= player.speed;
     if (keys["ArrowRight"]) player.x += player.speed;
@@ -184,7 +256,6 @@ function updateBall() {
     ball.x += ball.vx;
     ball.y += ball.vy;
 
-    // Colisão com a tabela
     if (
         ball.x + ball.radius > hoop.boardX &&
         ball.x - ball.radius < hoop.boardX + hoop.boardWidth &&
@@ -194,9 +265,8 @@ function updateBall() {
     ) {
         ball.x = hoop.boardX - ball.radius;
         ball.vx *= -0.5;
-    }
+    }  
 
-    // Detecção de cesta (passando pelo aro, descendo)
     const rimLeft = hoop.x + 12;
     const rimRight = hoop.x + hoop.width - 12;
     if (
@@ -211,13 +281,15 @@ function updateBall() {
         score += 2;
         scoreElement.textContent = score;
         spawnParticles(ball.x, ball.y, "#ff9f1c");
+        triggerCrowdCheer();
+        
+        
+        // Faz a torcida vibrar na cesta
     }
 
-    // Quique nas bordas do aro
     bounceOffRimEdge(hoop.x);
     bounceOffRimEdge(hoop.x + hoop.width);
 
-    // Saiu da quadra / caiu no chão -> reseta
     if (ball.y - ball.radius > HEIGHT || ball.x < -50 || ball.x > WIDTH + 50) {
         resetBallToPlayer();
     }
@@ -228,12 +300,15 @@ function update() {
     updatePlayer();
     updateBall();
     updateParticles();
+    updateCrowd();
 }
 
-// ---------- Draw ----------
 function drawCourt() {
     ctx.fillStyle = "#dceeff";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    // Torcida desenhada ao fundo da quadra
+    drawCrowd();
 
     ctx.strokeStyle = "rgba(36,107,206,0.25)";
     ctx.lineWidth = 3;
@@ -248,7 +323,6 @@ function drawCourt() {
 }
 
 function drawHoop() {
-    // tabela
     ctx.fillStyle = "#f2f2f2";
     ctx.fillRect(hoop.boardX, hoop.boardY, hoop.boardWidth, hoop.boardHeight);
     ctx.strokeStyle = "#999";
@@ -258,11 +332,9 @@ function drawHoop() {
     ctx.lineWidth = 3;
     ctx.strokeRect(hoop.boardX + 3, hoop.boardY + 30, hoop.boardWidth - 6, 40);
 
-    // haste
     ctx.fillStyle = "#555";
     ctx.fillRect(hoop.boardX + hoop.boardWidth, hoop.boardY + hoop.boardHeight / 2 - 4, 20, 8);
 
-    // aro
     ctx.strokeStyle = "#ff4d4d";
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -270,7 +342,6 @@ function drawHoop() {
     ctx.lineTo(hoop.x + hoop.width, hoop.y);
     ctx.stroke();
 
-    // rede
     ctx.strokeStyle = "rgba(255,255,255,0.85)";
     ctx.lineWidth = 1.5;
     const netTop = hoop.y;
@@ -375,7 +446,6 @@ function draw() {
     drawPowerMeter();
 }
 
-// ---------- Loop / Game state ----------
 function loop() {
     update();
     draw();
@@ -393,7 +463,7 @@ function startGame() {
     score = 0;
     shots = 0;
     timeLeft = 60;
-    power = 11;
+    power = 18;
     gameRunning = true;
     player.x = 180;
     particles = [];
